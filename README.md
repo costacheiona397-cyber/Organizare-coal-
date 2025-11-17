@@ -1,0 +1,1 @@
+# School Planner PWA\n\nMinimal project. Run `npm install` then `npm start` (uses Parcel) to run locally. It's a simple PWA-ready React app you can build into a static bundle with `npm run build`.\n

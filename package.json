@@ -1,0 +1,16 @@
+{
+  "name": "school-planner-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "parcel public/index.html --open",
+    "build": "parcel build public/index.html --public-url ./"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.0.0"
+  }
+}
