@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 // SchoolPlannerApp.jsx
-// Single-file React component (Tailwind CSS not required; basic styles inline)
+// Corrected single-file React component (no Tailwind dependency)
 
 export default function SchoolPlannerApp() {
   const defaultSubjects = [
@@ -25,7 +25,11 @@ export default function SchoolPlannerApp() {
     }
   })
 
-  const [selectedDay, setSelectedDay] = useState(new Date().toLocaleDateString())
+  // Use ISO date string (YYYY-MM-DD) as planner keys for consistency
+  const todayISO = new Date().toISOString().slice(0,10)
+  const [selectedDay, setSelectedDay] = useState(() => {
+    return localStorage.getItem('selectedDay') || todayISO
+  })
   const [planners, setPlanners] = useState(() => JSON.parse(localStorage.getItem('planners')) || {})
   const [newTask, setNewTask] = useState('')
   const [topPriorities, setTopPriorities] = useState(() => planners[selectedDay]?.priorities || ['', '', ''])
@@ -45,11 +49,12 @@ export default function SchoolPlannerApp() {
   }, [planners])
 
   useEffect(() => {
+    localStorage.setItem('selectedDay', selectedDay)
     const data = planners[selectedDay] || { todos: [], priorities: ['', '', ''], notes: '', mood: '' }
     setTopPriorities(data.priorities || ['', '', ''])
     setNotes(data.notes || '')
     setMood(data.mood || '')
-  }, [selectedDay])
+  }, [selectedDay, planners])
 
   function updateLesson(day, index, value) {
     setTimetable(prev => ({ ...prev, [day]: prev[day].map((v, i) => i === index ? value : v) }))
@@ -66,6 +71,7 @@ export default function SchoolPlannerApp() {
         todos: prev[selectedDay]?.todos || []
       }
     }))
+    alert('Planner salvat pentru ' + selectedDay)
   }
 
   function addTodo() {
@@ -132,6 +138,7 @@ export default function SchoolPlannerApp() {
         setSubjects(parsed.subjects || defaultSubjects)
         setTimetable(parsed.timetable || { Luni: [...emptyDay], Marti: [...emptyDay], Miercuri: [...emptyDay], Joi: [...emptyDay], Vineri: [...emptyDay] })
         setPlanners(parsed.planners || {})
+        alert('Date importate cu succes')
       } catch (err) { alert('Fișier invalid') }
     }
     reader.readAsText(file)
@@ -157,8 +164,8 @@ export default function SchoolPlannerApp() {
         </div>
       </header>
 
-      <main style={{display:'flex',gap:16}}>
-        <section style={{flex:2,background:'#fff',padding:12,borderRadius:12,boxShadow:'0 2px 6px rgba(0,0,0,0.05)'}}>
+      <main style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+        <section style={{flex:'1 1 65%',background:'#fff',padding:12,borderRadius:12,boxShadow:'0 2px 6px rgba(0,0,0,0.05)'}}>
           <h2>Orar săptămânal</h2>
           <div style={{overflowX:'auto'}}>
             <table style={{width:'100%',borderCollapse:'collapse'}}>
@@ -186,16 +193,16 @@ export default function SchoolPlannerApp() {
           <div style={{marginTop:12}}>
             <h3>Subiecte rapide</h3>
             <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-              {subjects.map((s,i) => <button key={i} onClick={() => navigator.clipboard?.writeText(s)} style={{padding:'6px 8px',borderRadius:6}}>{s}</button>)}
+              {subjects.map((s,i) => <button key={i} onClick={() => { if (navigator.clipboard) navigator.clipboard.writeText(s) }} style={{padding:'6px 8px',borderRadius:6}}>{s}</button>)}
               <button onClick={() => { const s = prompt('Adaugă materie nouă'); if (s) setSubjects(prev => [...prev, s]) }}>Adaugă materie</button>
             </div>
           </div>
         </section>
 
-        <aside style={{flex:1,background:'#fff',padding:12,borderRadius:12,boxShadow:'0 2px 6px rgba(0,0,0,0.05)'}}>
+        <aside style={{flex:'1 1 30%',background:'#fff',padding:12,borderRadius:12,boxShadow:'0 2px 6px rgba(0,0,0,0.05)'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
             <h2 style={{margin:0}}>Planner zilnic</h2>
-            <input type="date" value={new Date(selectedDay).toISOString().slice(0,10)} onChange={e => setSelectedDay(new Date(e.target.value).toLocaleDateString())} />
+            <input type="date" value={selectedDay} onChange={e => setSelectedDay(e.target.value)} />
           </div>
 
           <div style={{marginTop:10}}>
